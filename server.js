@@ -50,6 +50,22 @@ fastify.get('/api/user/:id/avatar', async (req, reply) => {
 
 }) 
 
+fastify.delete('/api/user/:id/avatar', async (req, reply) => {
+  var id = req.params.id;
+
+  if (fs.existsSync('./' + id + '.jpg')) {
+    try {
+      fs.unlinkSync('./' + id + '.jpg'); // delete file
+      reply.send('successfully deleted ' + id + '.jpg');
+    } catch (err) {
+      // handle the error
+    }
+  } else {
+    reply.send("File doesnt exists");
+  }
+
+})
+
 var download = function(uri, filename, callback){
   request.head(uri, function(err, res, body){
     console.log('content-type:', res.headers['content-type']);
