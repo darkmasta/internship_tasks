@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script>
+    var app = angular.module("StrengthValidationApp", []);
+    app.controller("StrengthValidationCtrl", function($scope, $http) {
+
+      $scope.userEmail = "";
+      $scope.userPassword = "";
+
+      var strongRegularExp = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})");
+
+      var mediumRegularExp = new RegExp("^(((?=.*[a-z])(?=.*[A-Z]))|((?=.*[a-z])(?=.*[0-9]))|((?=.*[A-Z])(?=.*[0-9])))(?=.{6,})");
+
+      $scope.checkpwdStrength = {
+        "width": "150px",
+        "height": "25px",
+        "float": "right"
+      };
+
+      $scope.validationInputPwdText = function(value) {
+        if (strongRegularExp.test(value)) {
+          $scope.checkpwdStrength["background-color"] = "green";
+        } else if (mediumRegularExp.test(value)) {
+          $scope.checkpwdStrength["background-color"] = "orange";
+        } else {
+          $scope.checkpwdStrength["background-color"] = "red";
+        }
+      };
+
+      $scope.post_data = function(mail, passw)  {
+        $scope.userEmail = mail;
+        $scope.userPassword = passw;
+        console.log($scope.userEmail, $scope.userPassword)
+        if ($scope.validateEmail (mail)) {
+          console.log("email is valid");
+          data_string = 
+          $http({
+            method: 'POST',
+            url: 'https://api.forgingblock.io/register',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            data: {username: $scope.userName, password: $scope.password}
+        }).then(function (response) {
+          console.log(response.data);
+        });
+
+
+        } else {
+          console.log("Enter a valid email");
+        }
+      }
+
+      $scope.validateEmail = function(mail) 
+      {
+       if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail))
+        {
+          return (true)
+        }
+          alert("You have entered an invalid email address!")
+          return (false)
+      }
+
+      setInterval(function(){
+        $http.get('https://api.coingecko.com/api/v3/coins/ethereum').then(function(response) {
+        console.log(response.data.market_data.current_price.usd);        
+        $scope.eth_price = response.data.market_data.current_price.usd;
+      }) 
+      }, 40000);
+      
+
+    });
+
+    </script>
+</head>
+<body ng-app="StrengthValidationApp">
+    <div ng-controller="StrengthValidationCtrl">
+        <div>
+            <h3>Check password strength using RegEx!</h3>
+        </div>
+        <div>
+            <input type="mail" placeholder="Email" ng-model="userEmail" class="class1" />
+            <div ng-style="checkpwdStrength">Password Strength</div>
+            <input type="password" placeholder="Password" ng-model="userPassword" ng-change="validationInputPwdText(userPassword)" class="class1" />
+        </div>
+        <div>
+      <input type="submit" value="Sign in to ForgingBlock" ng-click="post_data(userEmail, userPassword)">
+    </div> 
+
+    <span>ETH PRICE: </span> {{eth_price}}
+    </div>
+</body>
+</html>
